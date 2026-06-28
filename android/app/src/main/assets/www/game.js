@@ -21,9 +21,9 @@ function toast(msg,color){var t=document.createElement('div');t.className='toast
 
 function _makeEngine(){
   var ak=$('ak').value.trim()||localStorage.getItem('bbl_apikey')||'';
-  var ab=$('ab').value.trim()||'https://api.deepseek.com/v1';
-  var am=$('am').value.trim()||'deepseek-v4-pro';
-  localStorage.setItem('bbl_apikey',ak);
+  var ab=$('ab').value.trim()||localStorage.getItem('bbl_apibase')||'https://api.deepseek.com/v1';
+  var am=$('am').value.trim()||localStorage.getItem('bbl_model')||'deepseek-v4-pro';
+  localStorage.setItem('bbl_apikey',ak);localStorage.setItem('bbl_apibase',ab);localStorage.setItem('bbl_model',am);
   return new GameEngine({apiKey:ak,apiBase:ab,model:am,maxTokens:4096});
 }
 
@@ -42,6 +42,8 @@ $('sbn').onclick=async function(){
 // 加载 API key 记忆
 (function(){
   var sak=localStorage.getItem('bbl_apikey');if(sak){$('ak').value=sak}
+  var sab=localStorage.getItem('bbl_apibase');if(sab)$('ab').value=sab;
+  var sam=localStorage.getItem('bbl_model');if(sam)$('am').value=sam;
   showSaves();
 })();
 
