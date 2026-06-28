@@ -143,7 +143,7 @@ function ub_(d){if(!d)return;$('sn').textContent=(d.player_name||'-')+' - '+(d.s
 
 function rp(){if(!gd||!engine)return;var d=engine.getState();rp_(engine.getLorebook(),(d||{}).talents)}
 function rp_(d,tal){
-  var entries=Object.entries(d||{});
+  var entries=Object.entries(d||{}).filter(function(e){return !e[1].deprecated});
   if(tal&&tal.length){entries=entries.filter(function(e){var t=e[0];return !tal.some(function(tl){return t.includes(tl)||tl.includes(t.split('/')[0])})})}
   if(!entries.length){pl.innerHTML='<div class="empty-people">no people yet</div>';return}
   pl.innerHTML='';for(var i=0;i<entries.length;i++){
