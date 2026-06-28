@@ -17,10 +17,10 @@ tgEl.onclick=function(e){var b=e.target;if(b.tagName!=='BUTTON')return;tp=b.getA
 var pbs=document.querySelectorAll('.pace-btns button');
 for(var i=0;i<pbs.length;i++){pbs[i].onclick=function(){pc=this.getAttribute('data-pace');var all=document.querySelectorAll('.pace-btns button');for(var j=0;j<all.length;j++)all[j].classList.remove('active');this.classList.add('active');toast('节奏切换为: '+pc,'var(--accent)')}}
 $('tgl').onclick=function(){var s=$('sidebar');s.classList.toggle('collapsed');$('tgl').textContent=s.classList.contains('collapsed')?'>':'X'};
-$('dedup_btn').onclick=async function(){
+$('dedup_btn').onclick=function(){
   if(!engine||!engine.state)return;var b=$('dedup_btn');b.disabled=true;b.textContent='整理中...';
-  try{var n=await engine.dedupLorebook();toast(n?'已合并为 '+n+' 人':'无变化','var(--green)');rp()}catch(e){toast('失败: '+e.message,'var(--red)')}
-  finally{b.disabled=false;b.textContent='整理'}
+  try{var n=engine.dedupLorebook();toast(n?'合并了 '+n+' 组重复':'无重复','var(--green)');rp()}catch(e){toast('失败: '+e.message,'var(--red)')}
+  b.disabled=false;b.textContent='整理'
 };
 function toast(msg,color){var t=document.createElement('div');t.className='toast';t.textContent=msg;if(color)t.style.background=color;document.body.appendChild(t);setTimeout(function(){t.remove()},2000)}
 

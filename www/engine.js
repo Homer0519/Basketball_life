@@ -168,18 +168,32 @@ class GameEngine {
     if(st.new_talents&&Array.isArray(st.new_talents)){for(const t of st.new_talents){if(t&&!state.tal.includes(t))state.tal.push(t)}}
     for(const e of st.lorebook_upsert||[]){
       const t=e.trigger||'';if(!t)continue;
-      const np=t.split('/').map(s=>s.trim());
-      const ek=Object.keys(state.lb).find(ex=>{if(state.lb[ex].dp)return false;const ep=ex.split('/').map(s=>s.trim());return np.some(n=>ep.includes(n))||ep.some(n=>np.includes(n))});
-      if(ek){state.lb[ek].ct=e.content||'';state.lb[ek].pr=Math.max(state.lb[ek].pr||5,e.priority||5);state.lb[ek].ar=state.mc}
+      const nc=e.content||'';let ek=null;
+      for(const ex of Object.keys(state.lb)){
+        if(state.lb[ex].dp)continue;
+        if(this._isSamePerson(t,ex,nc,state.lb[ex].ct||'')){ek=ex;break}
+      }
+      if(ek){state.lb[ek].ct=nc;state.lb[ek].pr=Math.max(state.lb[ek].pr||5,e.priority||5);state.lb[ek].ar=state.mc}
       else{
         if(Object.keys(state.lb).length>=30){
           const active=Object.entries(state.lb).filter(([_,v])=>!v.dp);
           if(active.length){active.sort((a,b)=>(a[1].pr||5)-(b[1].pr||5)||(a[1].ar||0)-(b[1].ar||0));state.lb[active[0][0]].dp=true}
         }
-        state.lb[t]={ct:e.content||'',pr:e.priority||5,dp:false,ar:state.mc}
+        state.lb[t]={ct:nc,pr:e.priority||5,dp:false,ar:state.mc}
       }
     }
     for(const t of st.lorebook_deprecate||[]){if(state.lb[t])state.lb[t].dp=true}
+  }
+
+  _charOverlap(a,b){
+    if(!a||!b)return 0;const sa=new Set([...a].filter(c=>/[\u4e00-\u9fff]/.test(c)));const sb=new Set([...b].filter(c=>/[\u4e00-\u9fff]/.test(c)));
+    if(!sa.size||!sb.size)return 0;let c=0;for(const x of sa){if(sb.has(x))c++}return Math.max(c/sa.size,c/sb.size)
+  }
+  _isSamePerson(t1,t2,ct1,ct2){
+    if(t1===t2)return true;
+    const n1=t1.split('/').map(s=>s.trim()).filter(n=>n.length>=2);const n2=t2.split('/').map(s=>s.trim()).filter(n=>n.length>=2);
+    if(n1.some(n=>n2.includes(n))||n2.some(n=>n1.includes(n)))return true;
+    return this._charOverlap(ct1,ct2)>=0.5
   }
 
   _memorize(state,narrative){state.mc++;state.rm.push(narrative.substring(0,3000));state.dm.push({role:'assistant',content:narrative.substring(0,3000)})}
@@ -250,25 +264,21 @@ class GameEngine {
     yield*this.doAction(input)
   }
 
-  async dedupLorebook(){
-    if(!this.state)return;
-    const entries=Object.entries(this.state.lb).filter(([_,v])=>!v.dp);
-    if(entries.length<2)return entries.length;
-    const input=entries.map(([k,v])=>k+': '+v.ct).join('\n');
-    const sp='你是数据清理助手。以下是人物档案，可能有同一人物的不同名字变体。请合并重复人物，保持最完整的描述。输出纯JSON，格式：{"触发词1/别名1":{"ct":"描述","pr":5},"触发词2":...}。不要输出任何其他文字。';
-    const up='合并以下人物档案：\n\n'+input;
-    const t=await this._llCall(sp,up);
-    try{
-      const jt=t.match(/\{[\s\S]*\}/);if(!jt)return 0;
-      const merged=JSON.parse(jt[0]);
-      const old=this.state.lb;
-      this.state.lb={};
-      for(const[k,v]of Object.entries(merged)){
-        this.state.lb[k]={ct:v.ct||v.content||'',pr:v.pr||v.priority||5,dp:false,ar:this.state.mc}
+  dedupLorebook(){
+    if(!this.state)return 0;
+    const ks=Object.keys(this.state.lb).filter(k=>!this.state.lb[k].dp);let m=0;
+    for(let i=0;i<ks.length;i++){
+      const ki=ks[i],vi=this.state.lb[ki];if(vi.dp)continue;
+      for(let j=i+1;j<ks.length;j++){
+        const kj=ks[j],vj=this.state.lb[kj];if(vj.dp)continue;
+        if(this._isSamePerson(ki,kj,vi.ct||'',vj.ct||'')){
+          const mt=[...new Set([...ki.split('/').map(s=>s.trim()),...kj.split('/').map(s=>s.trim())])].join('/');
+          this.state.lb[mt]={ct:vi.ct||''.length>=vj.ct||''.length?vi.ct:vj.ct,pr:Math.max(vi.pr||5,vj.pr||5),dp:false,ar:this.state.mc};
+          vi.dp=true;vj.dp=true;m++;break
+        }
       }
-      for(const[k,v]of Object.entries(old)){if(v.dp&&!this.state.lb[k])this.state.lb[k]=v}
-      return Object.keys(merged).length
-    }catch{return 0}
+    }
+    return m
   }
 
   getState(){
