@@ -148,7 +148,7 @@ function rp_(d,tal){
   if(!entries.length){pl.innerHTML='<div class="empty-people">no people yet</div>';return}
   pl.innerHTML='';for(var i=0;i<entries.length;i++){
     var k=entries[i][0],v=entries[i][1];
-    pl.innerHTML+='<div class="person-card"><div class="name">'+es(k.split('/')[0])+'</div><div class="summary" onclick="_editLb(\''+k.replace(/'/g,"\\'")+'\')" title="点击修改">'+es(v.content||'')+'</div></div>';
+    pl.innerHTML+='<div class="person-card"><div class="name">'+es(k.split('/')[0])+'<button class="lb-del" onclick="event.stopPropagation();_deleteLb(\''+k.replace(/'/g,"\\'")+'\')" title="删除">✕</button></div><div class="summary" onclick="_editLb(\''+k.replace(/'/g,"\\'")+'\')" title="点击修改">'+es(v.content||'')+'</div></div>';
   }
 }
 function up_(d){if(!d||!d.lorebook)return;rp_(d.lorebook)}
@@ -232,5 +232,10 @@ window._editLb=function(trigger){
   if(!engine||!engine.state||!engine.state.lb[trigger])return;
   var ct=prompt('修改描述:',engine.state.lb[trigger].ct||'');if(ct===null)return;
   engine.state.lb[trigger].ct=ct;rp();toast('已更新','var(--green)')
+};
+window._deleteLb=function(trigger){
+  if(!engine||!engine.state||!engine.state.lb[trigger])return;
+  if(!confirm('删除「'+trigger.split('/')[0]+'」？'))return;
+  engine.state.lb[trigger].dp=true;rp();toast('已删除','var(--red)')
 };
 })();
