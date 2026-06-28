@@ -149,8 +149,8 @@ function rp_(d,tal){
 function up_(d){if(!d||!d.lorebook)return;rp_(d.lorebook)}
 
 function _renderAttrPanel(d){
-  if(!d)return;var rows=[['士气',d.morale,'accent'],['声望',d.reputation,'accent'],['身体',d.physical,'accent'],['魅力',d.charm,'accent'],['更衣室',d.team_chemistry,'accent'],['关键球',d.clutch,'accent'],['疲劳',d.fatigue,'red',true]];
-  var h='';for(var i=0;i<rows.length;i++){var r=rows[i],w=r[4]?(100-r[2]):r[2];h+='<div class="attr-row"><div class="alabel"><span>'+r[0]+'</span><span>'+r[2]+'</span></div><div class="abar"><div class="afill '+r[3]+'" style="width:'+w+'%"></div></div></div>'}
+  if(!d)return;var rows=[['士气',d.morale],['声望',d.reputation],['身体',d.physical],['魅力',d.charm],['更衣室',d.team_chemistry],['关键球',d.clutch],['疲劳',d.fatigue,1]];
+  var h='';for(var i=0;i<rows.length;i++){var r=rows[i],w=r[2]?(100-r[1]):r[1],c=r[2]?'#ef4444':'#f97316';h+='<div class="attr-row"><div class="alabel"><span>'+r[0]+'</span><span>'+r[1]+'</span></div><div class="abar"><div class="afill" style="width:'+w+'%;background:'+c+'"></div></div></div>'}
   $('al').innerHTML=h;
   var extras='';if(d.talents&&d.talents.length)extras+='<div class="ae-section"><div class="ae-title">天赋</div><div class="ae-tags">'+d.talents.map(function(t){return'<span class="ae-tag">'+t+'</span>'}).join('')+'</div></div>';
   if(d.honors&&d.honors.length)extras+='<div class="ae-item">🏆 '+d.honors.join(', ')+'</div>';
