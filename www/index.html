@@ -39,12 +39,12 @@
 }
 @media(min-width:769px){
   .mobile-menu-btn{display:none!important}
-  .attr-panel{right:16px;top:90px;width:220px;max-height:calc(100vh - 200px)}
-  .attr-toggle{right:16px;top:50px}
+  .attr-panel{right:16px;bottom:120px;width:220px;max-height:calc(100vh - 200px);top:auto}
+  .attr-toggle{right:16px;bottom:85px}
 }
-.attr-panel{position:fixed;right:8px;top:60px;width:200px;background:#14171dee;backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;padding:10px 12px;z-index:10;overflow-y:auto;max-height:calc(100vh - 180px);transition:transform .25s,opacity .25s}
+.attr-panel{position:fixed;right:6px;bottom:150px;width:185px;background:#14171dee;backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;padding:10px 12px;z-index:10;overflow-y:auto;max-height:50vh;transition:transform .25s,opacity .25s}
 .attr-panel.hidden{transform:translateX(280px);opacity:0;pointer-events:none}
-.attr-toggle{position:fixed;right:8px;top:28px;z-index:11;background:var(--panel);border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
+.attr-toggle{position:fixed;right:6px;bottom:110px;z-index:11;background:var(--panel);border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
 .attr-header{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .attr-row{margin-bottom:6px}.alabel{font-size:10px;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:1px}.alabel span:last-child{color:var(--text);font-weight:600}.abar{height:5px;background:#1f232b;border-radius:3px;overflow:hidden}.afill{height:100%;border-radius:3px;transition:width .4s}.afill.accent{background:var(--accent)}.afill.red{background:var(--red)}.attr-extra{margin-top:10px;border-top:1px solid var(--border);padding-top:8px}.ae-section{margin-bottom:6px}.ae-title{font-size:10px;color:var(--text2);margin-bottom:3px}.ae-tags{display:flex;flex-wrap:wrap;gap:3px}.ae-tag{background:#1a1d24;color:var(--accent);font-size:10px;padding:1px 6px;border-radius:3px}.ae-item{font-size:10px;color:var(--text2);margin-bottom:2px}
 </style><div style="position:fixed;top:4px;right:8px;color:var(--text2);font-size:10px;z-index:999;opacity:.5">v54</div></head><body><button class="mobile-menu-btn" id="mmb" onclick="var s=document.getElementById('sidebar');s.classList.toggle('open')">☰</button>

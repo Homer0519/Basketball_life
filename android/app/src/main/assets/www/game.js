@@ -37,6 +37,7 @@ $('sbn').onclick=async function(){
     var r=await engine.startGame(c);
     ov.style.display='none';document.body.classList.remove('has-overlay');gd=true;ar.style.display='flex';ia.style.display='flex';
     ab(r);var s=document.getElementById("sidebar");if(s)s.classList.remove("open");po(r);rf();rp();
+    if($('ap').classList.contains('hidden'))$('ap').classList.remove('hidden');
     b.disabled=false;b.textContent='开始游戏（已连接）';
   }catch(e){alert(e.message);b.disabled=false;b.textContent='开始游戏'}
 };
@@ -53,10 +54,10 @@ $('sbn').onclick=async function(){
 $('sb').onclick=sd;$('ci').onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sd()}};
 
 async function _streamGen(genFn){
-  $('stb').classList.add('visible');var bb=document.createElement('div');bb.className='narrative-block';bb.id='cb';bb.innerHTML='<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>';nr.appendChild(bb);sc();
-  var ft='';
+  $('stb').classList.add('visible');  var bb=document.createElement('div');bb.className='narrative-block';bb.id='cb';bb.innerHTML='<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>';nr.appendChild(bb);sc();
+  var ft='',lastLen=0;
   try{
-    for await(var ck of genFn){ft+=ck;bb.innerHTML=md(ft);sc()}
+    for await(var ck of genFn){ft+=ck;bb.innerHTML=md(ft);sc();if(ft.length-lastLen>40){lastLen=ft.length;await new Promise(function(r){requestAnimationFrame(r)})}}
   }catch(err){bb.innerHTML=md(ft)+(err.name==='AbortError'?'<br><em>[stopped]</em>':'<span style="color:var(--red)">err: '+es(err.message)+'</span>')}
   finally{gn=false;$('sb').disabled=false;$('stb').classList.remove('visible');bb.removeAttribute('id');po(ft);rf();rp()}
 }
@@ -196,7 +197,7 @@ window._loadSlot=async function(slot){
     gd=true;
     ov.style.display='none';document.body.classList.remove('has-overlay');
     ar.style.display='flex';ia.style.display='flex';var sb=document.getElementById('sidebar');if(sb)sb.classList.remove('open');
-    var d=engine.getState();ub_(d);rp();
+    var d=engine.getState();ub_(d);_renderAttrPanel(d);rp();
     if(d.display_messages){for(var i=0;i<d.display_messages.length;i++)ab(d.display_messages[i].content,d.display_messages[i].role)}
     else if(d.recent_messages){for(var i=0;i<d.recent_messages.length;i++)ab(d.recent_messages[i])}
     if(d.recent_messages&&d.recent_messages.length)po(d.recent_messages[d.recent_messages.length-1]);
