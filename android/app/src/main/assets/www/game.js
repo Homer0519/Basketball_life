@@ -72,6 +72,29 @@ $('mdb').onclick=function(){if(gn||!gd)return;var i=prompt('new action:');if(!i)
 
 $('svb').onclick=function(){var s=prompt('存档名称（留空=自动）')||'auto';engine.save(s);toast('已保存: '+s,'var(--blue)')}
 
+$('exb').onclick=function(){
+  var data={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.startsWith('bbl_save_')||k==='bbl_apikey')data[k]=localStorage.getItem(k)}
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bbl_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  toast('导出成功','var(--green)')
+}
+
+$('imb').onclick=function(){
+  var inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=function(){
+    var f=inp.files[0];if(!f)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{var data=JSON.parse(reader.result);
+        var count=0;for(var k in data){localStorage.setItem(k,data[k]);count++}
+        toast('导入 '+count+' 条，刷新后生效','var(--green)')
+      }catch(e){toast('导入失败: '+e.message,'var(--red)')}
+    };
+    reader.readAsText(f)
+  };
+  inp.click()
+}
+
 $('newb').onclick=function(){if(confirm('开始新游戏?')){engine.endSession();location.reload()}}
 
 $('stb').onclick=function(){if(engine)engine.abort()};
