@@ -150,7 +150,7 @@ function up_(d){if(!d||!d.lorebook)return;rp_(d.lorebook)}
 
 function _renderAttrPanel(d){
   if(!d)return;var rows=[['士气',d.morale],['声望',d.reputation],['身体',d.physical],['魅力',d.charm],['更衣室',d.team_chemistry],['关键球',d.clutch],['疲劳',d.fatigue,1]];
-  var h='';for(var i=0;i<rows.length;i++){var r=rows[i],w=r[2]?(100-r[1]):r[1],c=r[2]?'#ef4444':'#f97316';h+='<div class="attr-row"><div class="alabel"><span>'+r[0]+'</span><span>'+r[1]+'</span></div><div class="abar"><div class="afill" style="width:'+w+'%;background:'+c+'"></div></div></div>'}
+  var h='';for(var i=0;i<rows.length;i++){var r=rows[i],w=r[1],c=r[2]?'#ef4444':'#f97316';h+='<div class="attr-row"><div class="alabel"><span>'+r[0]+'</span><span>'+r[1]+'</span></div><div class="abar"><div class="afill" style="width:'+w+'%;background:'+c+'"></div></div></div>'}
   $('al').innerHTML=h;
   var extras='';if(d.talents&&d.talents.length)extras+='<div class="ae-section"><div class="ae-title">天赋</div><div class="ae-tags">'+d.talents.map(function(t){return'<span class="ae-tag">'+t+'</span>'}).join('')+'</div></div>';
   if(d.honors&&d.honors.length)extras+='<div class="ae-item">🏆 '+d.honors.join(', ')+'</div>';
