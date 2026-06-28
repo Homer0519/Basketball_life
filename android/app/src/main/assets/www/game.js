@@ -74,11 +74,11 @@ async function sd(){
 }
 
 $('rrb').onclick=function(){if(gn||!gd)return;if(!confirm('确定要重新生成吗？'))return;gn=true;$('sb').disabled=true;co();
-  var blocks=nr.querySelectorAll('.narrative-block');for(var i=blocks.length-1,c=0;i>=0&&c<2;i--){blocks[i].querySelector('.options-grid')?.remove();blocks[i].remove();c++}
+  var blocks=nr.querySelectorAll('.narrative-block');if(blocks.length&&!(blocks[blocks.length-1].style.background==='rgb(26, 29, 36)')){blocks[blocks.length-1].querySelector('.options-grid')?.remove();blocks[blocks.length-1].remove()}
   _streamGen(engine.regenerate());}
 
 $('mdb').onclick=function(){if(gn||!gd)return;var i=prompt('new action:');if(!i)return;gn=true;$('sb').disabled=true;co();
-  var blocks=nr.querySelectorAll('.narrative-block');for(var j=blocks.length-1,c=0;j>=0&&c<2;j--){blocks[j].querySelector('.options-grid')?.remove();blocks[j].remove();c++}
+  var blocks=nr.querySelectorAll('.narrative-block');if(blocks.length&&!(blocks[blocks.length-1].style.background==='rgb(26, 29, 36)')){blocks[blocks.length-1].querySelector('.options-grid')?.remove();blocks[blocks.length-1].remove()}
   _streamGen(engine.modify(i));}
 
 $('svb').onclick=function(){var s=prompt('存档名称（留空=自动）')||'auto';engine.save(s);toast('已保存: '+s,'var(--blue)')}
