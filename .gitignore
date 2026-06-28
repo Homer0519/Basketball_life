@@ -18,6 +18,11 @@ plugin/data/
 auto*.json
 bbl_backup_*.json
 
+# Release APKs
+release/*.apk
+release/*.rar
+release/*.zip
+
 # OS
 .DS_Store
 Thumbs.db
