@@ -190,8 +190,8 @@ function showSaves(){
       var h='<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)" id="save-slots"><div style="font-size:12px;color:var(--text2);margin-bottom:8px">已有存档：</div>';
       for(var i=0;i<saves.length;i++){
         var slot=saves[i];
-        h+='<div style="display:flex;gap:4px;margin-bottom:4px"><button onclick="event.stopPropagation();window._loadSlot(\''+slot+'\')" style="flex:1;background:#1a1d24;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;cursor:pointer;font-size:12px;text-align:left">'+slot+'</button>';
-        if(slot!=='auto')h+='<button onclick="event.stopPropagation();window._deleteSlot(\''+slot+'\')" style="background:#ef444422;border:1px solid #ef444444;color:var(--red);padding:6px 8px;border-radius:4px;cursor:pointer;font-size:11px" title="删除">✕</button>';
+        h+='<div style="display:flex;gap:4px;margin-bottom:4px"><button onclick="event.stopPropagation();window._loadSlot(\''+slot+'\')" style="flex:1;background:#1a1d24;border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:6px;cursor:pointer;font-size:14px;text-align:left">'+slot+'</button>';
+        if(slot!=='auto')h+='<button onclick="event.stopPropagation();window._deleteSlot(\''+slot+'\')" style="background:#ef444422;border:1px solid #ef444444;color:var(--red);padding:10px 12px;border-radius:6px;cursor:pointer;font-size:14px" title="删除">✕</button>';
         h+='</div>';
       }
       h+='</div>';
