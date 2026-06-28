@@ -120,7 +120,7 @@ $('sbc').onclick=function(){$('sov').style.display='none'}
 
 function po(t){
   var ls=t.split('\n'),o=[];
-  for(var i=0;i<ls.length;i++){var s=ls[i].trim();if(!s)continue;var m=s.match(/^([A-D])[.\)\u3001\uff0e\uff09]\s*(.+)/);if(!m)m=s.match(/^\*\*([A-D])\*\*\s*(.+)/);if(m)o.push({l:m[1],t:m[2].trim()})}
+  for(var i=0;i<ls.length;i++){var s=ls[i].trim();if(!s)continue;var m=s.match(/^([A-D])[.\)\u3001\uff0e\uff09]\s*(.+)/);if(!m)m=s.match(/^\*\*([A-D])[.\)\u3001\uff0e\uff09]?\*\*\s*(.+)/);if(!m)m=s.match(/^[-\*]\s*\*\*([A-D])\*\*[：:\s]+(.+)/);if(m)o.push({l:m[1],t:m[2].trim()})}
   if(o.length===0)return;
   var blocks=nr.querySelectorAll('.narrative-block');
   if(!blocks.length)return;
@@ -161,7 +161,7 @@ function es(s){var d=document.createElement('div');d.textContent=s;return d.inne
 function sc(){var d=nr.scrollHeight-nr.scrollTop-nr.clientHeight;if(d<120)nr.scrollTop=nr.scrollHeight}
 function md(t){
   if(!t)return'';var h=es(t);
-  h=h.replace(/───.*?STATE.*?───[\s\S]*?───.*?STATE.*?───/g,'');h=h.replace(/##STATE##[\s\S]*?(##ENDSTATE##|$)/g,'');h=h.replace(/```[\s\S]*?```/g,'');
+  h=h.replace(/───.*?STATE.*?───/g,'');h=h.replace(/##STATE##[\s\S]*?##ENDSTATE##/g,'');h=h.replace(/```[\s\S]*?```/g,'');
   h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
   h=h.replace(/^([A-D])[.\)\u3001\uff0e\uff09]\s*(.+)$/gm,'<strong style="color:var(--accent)">$1.</strong> $2');
