@@ -143,19 +143,26 @@ function rp_(d,tal){
   if(!entries.length){pl.innerHTML='<div class="empty-people">no people yet</div>';return}
   pl.innerHTML='';for(var i=0;i<entries.length;i++){
     var k=entries[i][0],v=entries[i][1];
-    pl.innerHTML+='<div class="person-card"><div class="name">'+es(k.split('/')[0])+'</div><div class="summary">'+es(v.content||'')+'</div></div>';
+    pl.innerHTML+='<div class="person-card"><div class="name">'+es(k.split('/')[0])+'</div><div class="summary" onclick="_editLb(\''+k.replace(/'/g,"\\'")+'\')" title="点击修改">'+es(v.content||'')+'</div></div>';
   }
 }
 function up_(d){if(!d||!d.lorebook)return;rp_(d.lorebook)}
 
+var _prevAttr={};
 function _renderAttrPanel(d){
-  if(!d)return;var rows=[['士气',d.morale],['声望',d.reputation],['身体',d.physical],['魅力',d.charm],['更衣室',d.team_chemistry],['关键球',d.clutch],['疲劳',d.fatigue,1]];
-  var h='';for(var i=0;i<rows.length;i++){var r=rows[i],w=r[1],c=r[2]?'#ef4444':'#f97316';h+='<div class="attr-row"><div class="alabel"><span>'+r[0]+'</span><span>'+r[1]+'</span></div><div class="abar"><div class="afill" style="width:'+w+'%;background:'+c+'"></div></div></div>'}
+  if(!d)return;
+  var rows=[['士气','morale',d.morale],['声望','reputation',d.reputation],['身体','physical',d.physical],['魅力','charm',d.charm],['更衣室','team_chemistry',d.team_chemistry],['关键球','clutch',d.clutch],['疲劳','fatigue',d.fatigue,1]];
+  var h='',summary='';
+  for(var i=0;i<rows.length;i++){var r=rows[i],v=r[2],w=r[3]?(100-v):v,c=r[3]?'#ef4444':'#f97316',ch=_prevAttr[r[1]]!==v&&_prevAttr[r[1]]!==undefined;
+    h+='<div class="attr-row'+(ch?' pulse':'')+'"><div class="alabel"><span>'+r[0]+'</span><span data-key="'+r[1]+'" onclick="_editAttr(\''+r[1]+'\',this)" style="cursor:pointer" title="点击修改">'+v+'</span></div><div class="abar"><div class="afill" style="width:'+w+'%;background:'+c+'"></div></div></div>';
+    _prevAttr[r[1]]=v;summary+=(summary?', ':'')+r[0]+' '+v;
+  }
   $('al').innerHTML=h;
   var extras='';if(d.talents&&d.talents.length)extras+='<div class="ae-section"><div class="ae-title">天赋</div><div class="ae-tags">'+d.talents.map(function(t){return'<span class="ae-tag">'+t+'</span>'}).join('')+'</div></div>';
   if(d.honors&&d.honors.length)extras+='<div class="ae-item">🏆 '+d.honors.join(', ')+'</div>';
   if(d.milestones&&d.milestones.length)extras+='<div class="ae-item">⭐ '+d.milestones.join(', ')+'</div>';
   $('ae').innerHTML=extras;
+  $('as').textContent=summary;$('as').style.display=$('ap').classList.contains('hidden')?'block':'none';
 }
 
 function es(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
@@ -209,6 +216,16 @@ window._deleteSlot=async function(slot){
   if(!confirm('确定删除存档「'+slot+'」？不可恢复！'))return;
   try{engine=_makeEngine();if(engine.deleteSave(slot)){location.reload()}else{alert('删除失败')}}catch(e){alert('删除失败: '+e.message)}
 };
-$('atb').onclick=function(){var p=$('ap');p.classList.toggle('hidden');localStorage.setItem('bbl_attrpanel',p.classList.contains('hidden')?'0':'1')};
+$('atb').onclick=function(){var p=$('ap');p.classList.toggle('hidden');localStorage.setItem('bbl_attrpanel',p.classList.contains('hidden')?'0':'1');$('as').style.display=p.classList.contains('hidden')?'block':'none'};
 (function(){if(localStorage.getItem('bbl_attrpanel')==='1'){var p=$('ap');if(p)p.classList.remove('hidden')}})();
+window._editAttr=function(key,el){
+  var v=parseInt(prompt('修改 (0-100):',el.textContent));if(isNaN(v)||!engine||!engine.state)return;v=Math.max(0,Math.min(100,v));
+  var map={morale:'mo',reputation:'rp',physical:'ph',fatigue:'ft',charm:'ch',team_chemistry:'tc',clutch:'cl'};
+  engine.state[map[key]]=v;rf();toast(key+' = '+v,'var(--accent)')
+};
+window._editLb=function(trigger){
+  if(!engine||!engine.state||!engine.state.lb[trigger])return;
+  var ct=prompt('修改描述:',engine.state.lb[trigger].ct||'');if(ct===null)return;
+  engine.state.lb[trigger].ct=ct;rp();toast('已更新','var(--green)')
+};
 })();
