@@ -63,11 +63,11 @@ async function sd(){
 }
 
 $('rrb').onclick=function(){if(gn||!gd)return;if(!confirm('确定要重新生成吗？'))return;gn=true;$('sb').disabled=true;co();
-  var blocks=nr.querySelectorAll('.narrative-block');for(var i=blocks.length-1;i>=0;i--){var b=blocks[i];var g=b.querySelector('.options-grid');if(g)g.remove();if(b.style.background==='rgb(26, 29, 36)'){b.remove()}else if(!g&&b.id!=='cb'){b.remove();break}}
+  var blocks=nr.querySelectorAll('.narrative-block');for(var i=blocks.length-1,c=0;i>=0&&c<2;i--){blocks[i].querySelector('.options-grid')?.remove();blocks[i].remove();c++}
   _streamGen(engine.regenerate());}
 
 $('mdb').onclick=function(){if(gn||!gd)return;var i=prompt('new action:');if(!i)return;gn=true;$('sb').disabled=true;co();
-  var blocks=nr.querySelectorAll('.narrative-block');for(var j=blocks.length-1;j>=0;j--){var b=blocks[j];var g=b.querySelector('.options-grid');if(g)g.remove();if(b.style.background==='rgb(26, 29, 36)'){b.remove()}else if(!g&&b.id!=='cb'){b.remove();break}}
+  var blocks=nr.querySelectorAll('.narrative-block');for(var j=blocks.length-1,c=0;j>=0&&c<2;j--){blocks[j].querySelector('.options-grid')?.remove();blocks[j].remove();c++}
   _streamGen(engine.modify(i));}
 
 $('svb').onclick=function(){var s=prompt('存档名称（留空=自动）')||'auto';engine.save(s);toast('已保存: '+s,'var(--blue)')}
@@ -90,12 +90,13 @@ function po(t){
   last.addEventListener('click',function(e){var b=e.target.closest('.option-btn');if(!b)return;var l=b.getAttribute('data-o'),t='';for(var i=0;i<o.length;i++){if(o[i].l===l){t=o[i].t;break}}$('ci').value=l+': '+t;sd()});
 }function co(){var g=nr.querySelectorAll('.options-grid');for(var i=0;i<g.length;i++)g[i].remove()}function ab(h,role){var d=document.createElement('div');d.className='narrative-block';if(role==='user')d.style.background='#1a1d24';d.innerHTML=md(h);nr.appendChild(d)}
 
-function rf(){if(!gd||!engine)return;var d=engine.getState();if(d)ub_(d)}
+function rf(){if(!gd||!engine)return;var d=engine.getState();if(d){ub_(d);_renderAttrPanel(d)}}
 function ub_(d){if(!d)return;$('sn').textContent=(d.player_name||'-')+' - '+(d.stage||'-');$('sa').textContent=d.season_avg||'-';$('sf').textContent=d.fatigue||0;$('sr').textContent=d.reputation||0;$('sp').textContent=d.physical||0}
 
-function rp(){if(!gd||!engine)return;var d=engine.getLorebook();rp_(d)}
-function rp_(d){
+function rp(){if(!gd||!engine)return;var d=engine.getState();rp_(engine.getLorebook(),(d||{}).talents)}
+function rp_(d,tal){
   var entries=Object.entries(d||{});
+  if(tal&&tal.length){entries=entries.filter(function(e){var t=e[0];return !tal.some(function(tl){return t.includes(tl)||tl.includes(t.split('/')[0])})})}
   if(!entries.length){pl.innerHTML='<div class="empty-people">no people yet</div>';return}
   pl.innerHTML='';for(var i=0;i<entries.length;i++){
     var k=entries[i][0],v=entries[i][1];
@@ -103,6 +104,16 @@ function rp_(d){
   }
 }
 function up_(d){if(!d||!d.lorebook)return;rp_(d.lorebook)}
+
+function _renderAttrPanel(d){
+  if(!d)return;var rows=[['士气',d.morale,'accent'],['声望',d.reputation,'accent'],['身体',d.physical,'accent'],['魅力',d.charm,'accent'],['更衣室',d.team_chemistry,'accent'],['关键球',d.clutch,'accent'],['疲劳',d.fatigue,'red',true]];
+  var h='';for(var i=0;i<rows.length;i++){var r=rows[i],w=r[4]?(100-r[2]):r[2];h+='<div class="attr-row"><div class="alabel"><span>'+r[0]+'</span><span>'+r[2]+'</span></div><div class="abar"><div class="afill '+r[3]+'" style="width:'+w+'%"></div></div></div>'}
+  $('al').innerHTML=h;
+  var extras='';if(d.talents&&d.talents.length)extras+='<div class="ae-section"><div class="ae-title">天赋</div><div class="ae-tags">'+d.talents.map(function(t){return'<span class="ae-tag">'+t+'</span>'}).join('')+'</div></div>';
+  if(d.honors&&d.honors.length)extras+='<div class="ae-item">🏆 '+d.honors.join(', ')+'</div>';
+  if(d.milestones&&d.milestones.length)extras+='<div class="ae-item">⭐ '+d.milestones.join(', ')+'</div>';
+  $('ae').innerHTML=extras;
+}
 
 function es(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function sc(){var d=nr.scrollHeight-nr.scrollTop-nr.clientHeight;if(d<120)nr.scrollTop=nr.scrollHeight}
@@ -155,4 +166,6 @@ window._deleteSlot=async function(slot){
   if(!confirm('确定删除存档「'+slot+'」？不可恢复！'))return;
   try{engine=_makeEngine();if(engine.deleteSave(slot)){location.reload()}else{alert('删除失败')}}catch(e){alert('删除失败: '+e.message)}
 };
+$('atb').onclick=function(){var p=$('ap');p.classList.toggle('hidden');localStorage.setItem('bbl_attrpanel',p.classList.contains('hidden')?'0':'1')};
+(function(){if(localStorage.getItem('bbl_attrpanel')==='1'){var p=$('ap');if(p)p.classList.remove('hidden')}})();
 })();
