@@ -187,7 +187,7 @@ class BE:
     async def rg(self,sid):
         gs=self.gs(sid)
         if not gs or not self.rs(sid):yield"无法重新生成。";return
-        ui=gs.lui if hasattr(gs,'lui')and gs.lui else"重新生成"
+        ui=gs.lui if hasattr(gs,'lui')and gs.lui else"继续"
         self.ts(sid);sp=self._sp(gs);up=self._up(gs,ui);ft=""
         async for ck in self._ls(sp,up):ft+=ck;yield ck
         n,st=self._pr(ft);self._ap(gs,st);self._mm(gs,n);self.sv(sid,"auto")
