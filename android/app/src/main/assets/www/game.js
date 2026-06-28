@@ -23,8 +23,10 @@ function _makeEngine(){
   var ak=$('ak').value.trim()||localStorage.getItem('bbl_apikey')||'';
   var ab=$('ab').value.trim()||localStorage.getItem('bbl_apibase')||'https://api.deepseek.com/v1';
   var am=$('am').value.trim()||localStorage.getItem('bbl_model')||'deepseek-v4-pro';
+  var mt=parseInt($('amt').value)||parseInt(localStorage.getItem('bbl_maxtokens'))||4096;
   localStorage.setItem('bbl_apikey',ak);localStorage.setItem('bbl_apibase',ab);localStorage.setItem('bbl_model',am);
-  return new GameEngine({apiKey:ak,apiBase:ab,model:am,maxTokens:4096});
+  localStorage.setItem('bbl_maxtokens',mt);
+  return new GameEngine({apiKey:ak,apiBase:ab,model:am,maxTokens:mt});
 }
 
 $('sbn').onclick=async function(){
@@ -44,6 +46,7 @@ $('sbn').onclick=async function(){
   var sak=localStorage.getItem('bbl_apikey');if(sak){$('ak').value=sak}
   var sab=localStorage.getItem('bbl_apibase');if(sab)$('ab').value=sab;
   var sam=localStorage.getItem('bbl_model');if(sam)$('am').value=sam;
+  var smt=localStorage.getItem('bbl_maxtokens');if(smt)$('amt').value=smt;
   showSaves();
 })();
 
@@ -103,13 +106,14 @@ $('stb_set').onclick=function(){
   $('sak').value=localStorage.getItem('bbl_apikey')||'';
   $('sab').value=localStorage.getItem('bbl_apibase')||'https://api.deepseek.com/v1';
   $('sam').value=localStorage.getItem('bbl_model')||'deepseek-v4-pro';
+  $('smt').value=localStorage.getItem('bbl_maxtokens')||'4096';
   $('sov').style.display='flex'
 };
 $('sbs').onclick=function(){
-  var ak=$('sak').value.trim(),ab=$('sab').value.trim(),am=$('sam').value.trim();
-  localStorage.setItem('bbl_apikey',ak);localStorage.setItem('bbl_apibase',ab);localStorage.setItem('bbl_model',am);
-  if(engine){engine.apiCfg.apiKey=ak;engine.apiCfg.apiBase=ab;engine.apiCfg.model=am}
-  $('ak').value=ak;$('ab').value=ab;$('am').value=am;
+  var ak=$('sak').value.trim(),ab=$('sab').value.trim(),am=$('sam').value.trim(),mt=$('smt').value.trim();
+  localStorage.setItem('bbl_apikey',ak);localStorage.setItem('bbl_apibase',ab);localStorage.setItem('bbl_model',am);localStorage.setItem('bbl_maxtokens',mt);
+  if(engine){engine.apiCfg.apiKey=ak;engine.apiCfg.apiBase=ab;engine.apiCfg.model=am;engine.apiCfg.maxTokens=parseInt(mt)||4096}
+  $('ak').value=ak;$('ab').value=ab;$('am').value=am;$('amt').value=mt;
   $('sov').style.display='none';toast('设置已保存','var(--green)')
 };
 $('sbc').onclick=function(){$('sov').style.display='none'}
