@@ -78,7 +78,8 @@ $('rrb').onclick=function(){if(gn||!gd)return;if(!confirm('确定要重新生成
   _streamGen(engine.regenerate());}
 
 $('mdb').onclick=function(){if(gn||!gd)return;var i=prompt('new action:');if(!i)return;gn=true;$('sb').disabled=true;co();
-  var blocks=nr.querySelectorAll('.narrative-block');if(blocks.length&&!(blocks[blocks.length-1].style.background==='rgb(26, 29, 36)')){blocks[blocks.length-1].querySelector('.options-grid')?.remove();blocks[blocks.length-1].remove()}
+  var blocks=nr.querySelectorAll('.narrative-block');if(blocks.length){var last=blocks[blocks.length-1];if(last.style.background!=='rgb(26, 29, 36)'){last.querySelector('.options-grid')?.remove();last.remove()}else{blocks[blocks.length-2]?.querySelector('.options-grid')?.remove();blocks[blocks.length-2]?.remove()}}
+  var ub=document.createElement('div');ub.className='narrative-block';ub.style.background='#1a1d24';ub.innerHTML='<strong>修改：</strong> '+es(i);nr.appendChild(ub);sc();
   _streamGen(engine.modify(i));}
 
 $('svb').onclick=function(){var s=prompt('存档名称（留空=自动）')||'auto';engine.save(s);toast('已保存: '+s,'var(--blue)')}
