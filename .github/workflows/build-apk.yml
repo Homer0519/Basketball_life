@@ -54,5 +54,11 @@ jobs:
           tag_name: v${{ github.run_number }}
           files: android/app/build/outputs/apk/debug/BBL_v${{ github.run_number }}.apk
           fail_on_unmatched_files: false
+      - name: Clean old releases (keep 10)
+        run: |
+          gh release list --limit 100 --json tagName --jq '.[].tagName' | tail -n +11 | while read tag; do
+            gh release delete "$tag" --yes
+            git push origin --delete "$tag" 2>/dev/null || true
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
