@@ -79,7 +79,7 @@ $('exb').onclick=function(){
   toast('导出成功','var(--green)')
 }
 
-$('imb').onclick=function(){
+$('simb').onclick=function(){
   var inp=document.createElement('input');inp.type='file';inp.accept='.json';
   inp.onchange=function(){
     var f=inp.files[0];if(!f)return;
