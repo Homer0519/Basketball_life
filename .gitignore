@@ -15,6 +15,8 @@ android/.idea/
 
 # Data
 plugin/data/
+auto*.json
+bbl_backup_*.json
 
 # OS
 .DS_Store
