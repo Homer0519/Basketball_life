@@ -76,14 +76,15 @@ class GameEngine {
 
   takeSnapshot(){
     if(!this.state)return;
-    const d=this.state.toJSON();const sn={};
-    for(const k of Object.keys(d)){if(k!=='ss'&&k!=='rm')sn[k]=d[k]}
-    sn._rm=[...this.state.rm];this.state.ss.push(sn)
+    const d=JSON.parse(JSON.stringify(this.state.toJSON()));
+    d._rm=d.rm;d.rm=undefined;d.ss=undefined;
+    this.state.ss.push(d)
   }
 
   restoreSnapshot(){
     if(!this.state||!this.state.ss.length)return false;
-    const sn=this.state.ss.pop();const rm=sn._rm||[];delete sn._rm;
+    const sn=this.state.ss.pop();const rm=sn._rm||[];
+    delete sn._rm;delete sn.rm;delete sn.ss;
     for(const k of Object.keys(sn)){if(k in this.state)this.state[k]=sn[k]}
     this.state.rm=rm;return true
   }
@@ -236,7 +237,7 @@ class GameEngine {
 
   async *regenerate(){
     if(!this.state||!this.restoreSnapshot()){yield'无法重新生成。';return}
-    const input=this.state.lui||'继续';this.takeSnapshot();
+    const input=this.state.lui||'重新生成';this.takeSnapshot();
     const sp=this._sysPrompt(this.state);const up=this._userPrompt(this.state,input);
     let ft='';this._abortController=new AbortController();
     try{for await(const ck of this._lsStream(sp,up,this._abortController.signal)){ft+=ck;yield ck}}
