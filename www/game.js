@@ -97,7 +97,20 @@ $('simb').onclick=function(){
 
 $('newb').onclick=function(){if(confirm('开始新游戏?')){engine.endSession();location.reload()}}
 
-$('stb').onclick=function(){if(engine)engine.abort()};
+$('stb_set').onclick=function(){
+  $('sak').value=localStorage.getItem('bbl_apikey')||'';
+  $('sab').value=localStorage.getItem('bbl_apibase')||'https://api.deepseek.com/v1';
+  $('sam').value=localStorage.getItem('bbl_model')||'deepseek-v4-pro';
+  $('sov').style.display='flex'
+};
+$('sbs').onclick=function(){
+  var ak=$('sak').value.trim(),ab=$('sab').value.trim(),am=$('sam').value.trim();
+  localStorage.setItem('bbl_apikey',ak);localStorage.setItem('bbl_apibase',ab);localStorage.setItem('bbl_model',am);
+  if(engine){engine.apiCfg.apiKey=ak;engine.apiCfg.apiBase=ab;engine.apiCfg.model=am}
+  $('ak').value=ak;$('ab').value=ab;$('am').value=am;
+  $('sov').style.display='none';toast('设置已保存','var(--green)')
+};
+$('sbc').onclick=function(){$('sov').style.display='none'}
 
 function po(t){
   var ls=t.split('\n'),o=[];
