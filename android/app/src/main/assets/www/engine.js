@@ -250,6 +250,27 @@ class GameEngine {
     yield*this.doAction(input)
   }
 
+  async dedupLorebook(){
+    if(!this.state)return;
+    const entries=Object.entries(this.state.lb).filter(([_,v])=>!v.dp);
+    if(entries.length<2)return entries.length;
+    const input=entries.map(([k,v])=>k+': '+v.ct).join('\n');
+    const sp='你是数据清理助手。以下是人物档案，可能有同一人物的不同名字变体。请合并重复人物，保持最完整的描述。输出纯JSON，格式：{"触发词1/别名1":{"ct":"描述","pr":5},"触发词2":...}。不要输出任何其他文字。';
+    const up='合并以下人物档案：\n\n'+input;
+    const t=await this._llCall(sp,up);
+    try{
+      const jt=t.match(/\{[\s\S]*\}/);if(!jt)return 0;
+      const merged=JSON.parse(jt[0]);
+      const old=this.state.lb;
+      this.state.lb={};
+      for(const[k,v]of Object.entries(merged)){
+        this.state.lb[k]={ct:v.ct||v.content||'',pr:v.pr||v.priority||5,dp:false,ar:this.state.mc}
+      }
+      for(const[k,v]of Object.entries(old)){if(v.dp&&!this.state.lb[k])this.state.lb[k]=v}
+      return Object.keys(merged).length
+    }catch{return 0}
+  }
+
   getState(){
     if(!this.state)return null;const s=this.state;
     return{player_name:s.pn,age:s.age,position:s.pos,height:s.ht,stage:s.stage,team:s.team,season:s.season,talents:s.tal,honors:s.hn,milestones:s.ms,season_avg:this._avg(s),morale:s.mo,reputation:s.rp,physical:s.ph,fatigue:s.ft,charm:s.ch,team_chemistry:s.tc,clutch:s.cl,pace:s.pace,message_count:s.mc,recent_messages:s.rm,display_messages:s.dm,lorebook:Object.fromEntries(Object.entries(s.lb).map(([t,e])=>[t,{content:(e.ct||'').substring(0,80),priority:e.pr||5,deprecated:!!e.dp}]))}
