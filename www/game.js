@@ -41,7 +41,7 @@ $('sbn').onclick=async function(){
     var c={name:$('cn').value.trim(),position:sl,height:parseInt($('ch').value)||198,background:$('cb').value.trim(),player_type:tp};
     var r=await engine.startGame(c);
     ov.style.display='none';document.body.classList.remove('has-overlay');gd=true;ar.style.display='flex';ia.style.display='flex';
-    ab(r);var s=document.getElementById("sidebar");if(s)s.classList.remove("open");po(r);rf();rp();
+    ab(r);var s=document.getElementById("sidebar");if(s)s.classList.remove("open");nr.scrollTop=nr.scrollHeight;po(r);rf();rp();
     if($('ap').classList.contains('hidden'))$('ap').classList.remove('hidden');
     b.disabled=false;b.textContent='开始游戏（已连接）';
   }catch(e){alert(e.message);b.disabled=false;b.textContent='开始游戏'}
@@ -197,7 +197,8 @@ function showSaves(){
       }
       h+='</div>';
       sd.querySelector('.btn-primary').insertAdjacentHTML('beforebegin',h);
-    }
+      toast(saves.length+' 个存档已就绪','var(--blue)')
+    }else{toast('暂无存档','var(--text2)')}
   }catch(e){console.error('showSaves:',e)}
 }
 
@@ -214,6 +215,7 @@ window._loadSlot=async function(slot){
     if(d.display_messages){for(var i=0;i<d.display_messages.length;i++)ab(d.display_messages[i].content,d.display_messages[i].role)}
     else if(d.recent_messages){for(var i=0;i<d.recent_messages.length;i++)ab(d.recent_messages[i])}
     if(d.recent_messages&&d.recent_messages.length)po(d.recent_messages[d.recent_messages.length-1]);
+    nr.scrollTop=nr.scrollHeight;
     b.disabled=false;b.textContent='开始游戏（已连接）';
   }catch(e){alert('加载失败: '+e.message);b.disabled=false;b.textContent='开始游戏'}
 };
