@@ -85,10 +85,12 @@ $('mdb').onclick=function(){if(gn||!gd)return;var i=prompt('new action:');if(!i)
 $('svb').onclick=function(){var s=prompt('存档名称（留空=自动）')||'auto';engine.save(s);toast('已保存: '+s,'var(--blue)')}
 
 $('exb').onclick=function(){
-  var data={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.startsWith('bbl_save_')||k==='bbl_apikey')data[k]=localStorage.getItem(k)}
+  var slot=prompt('导出哪个存档？（auto / 存档名）','auto');if(!slot)return;
+  var key='bbl_save_'+slot;var raw=localStorage.getItem(key);if(!raw){toast('存档不存在','var(--red)');return}
+  var data={};data[key]=raw;if(slot==='auto'){data['bbl_apikey']=localStorage.getItem('bbl_apikey')||''}
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bbl_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
-  toast('导出成功','var(--green)')
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bbl_'+slot+'_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  toast('已导出: '+slot,'var(--green)')
 }
 
 $('simb').onclick=function(){
