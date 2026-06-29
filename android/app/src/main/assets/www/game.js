@@ -87,13 +87,15 @@ $('svb').onclick=function(){var s=prompt('存档名称（留空=自动）')||'au
 $('exb').onclick=function(){
   var saves=engine?engine.listSaves():(function(){var e=_makeEngine();return e.listSaves()})();
   if(!saves.length){toast('无存档','var(--red)');return}
-  var list=saves.map(function(s){return s}).join('\n');
-  var slot=prompt('选择要导出的存档:\n\n'+list+'\n\n输入存档名：','auto');if(!slot)return;
-  if(saves.indexOf(slot)===-1){toast('存档不存在','var(--red)');return}
+  var h='';for(var i=0;i<saves.length;i++){var s=saves[i];h+='<button class="exp-btn" onclick="_doExport(\''+s+'\')">'+s+'</button>'}
+  $('exp_list').innerHTML=h||'<div style="color:var(--text2)">无存档</div>';
+  $('exp_ov').style.display='flex'
+};$('exp_cancel').onclick=function(){$('exp_ov').style.display='none'};
+window._doExport=function(slot){
   var key='bbl_save_'+slot;var data={};data[key]=localStorage.getItem(key);if(slot==='auto'){data['bbl_apikey']=localStorage.getItem('bbl_apikey')||''}
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bbl_'+slot+'_'+new Date().toISOString().slice(0,10)+'.json';a.click();
-  toast('已导出: '+slot,'var(--green)')
+  $('exp_ov').style.display='none';toast('已导出: '+slot,'var(--green)')
 }
 
 $('simb').onclick=function(){
