@@ -15,6 +15,7 @@ android/.idea/
 
 # Data
 plugin/data/
+data/save_*.json
 auto*.json
 bbl_backup_*.json
 
