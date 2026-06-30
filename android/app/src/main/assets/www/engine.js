@@ -47,10 +47,20 @@ class GameEngine {
 
   save(slot){
     if(!this.state)return;
-    localStorage.setItem(this._saveKey(slot||'auto'),JSON.stringify(this.state.toJSON()));
+    const raw=JSON.stringify(this.state.toJSON());
+    localStorage.setItem(this._saveKey(slot||'auto'),raw);
+    if(this._isLocal())this._syncPost(location.origin+'/api/save?slot='+encodeURIComponent(slot||'auto'),raw);
   }
 
   load(slot){
+    if(this._isLocal()){
+      const r=this._syncGet(location.origin+'/api/load?slot='+encodeURIComponent(slot||'auto'));
+      if(r&&r.ok)return this._restoreState(JSON.stringify(r.data));
+      if(!slot||slot==='auto')return null;
+      const rf=this._syncGet(location.origin+'/api/load?slot=auto');
+      if(rf&&rf.ok)return this._restoreState(JSON.stringify(rf.data));
+      return null;
+    }
     const key=this._saveKey(slot||'auto');let raw=localStorage.getItem(key);
     if(!raw&&slot&&slot!=='auto')raw=localStorage.getItem(this._saveKey('auto'));
     if(!raw)return null;return this._restoreState(raw);
@@ -63,12 +73,21 @@ class GameEngine {
   }
 
   listSaves(){
+    if(this._isLocal()){
+      const r=this._syncGet(location.origin+'/api/saves');
+      return r||[]
+    }
     const saves=new Set();
     for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k.startsWith('bbl_save_'))continue;const s=k.replace('bbl_save_','');saves.add(s)}
     return Array.from(saves).sort()
   }
 
-  deleteSave(slot){if(!slot||slot==='auto')return false;localStorage.removeItem(this._saveKey(slot));return true}
+  deleteSave(slot){if(!slot||slot==='auto')return false;
+    localStorage.removeItem(this._saveKey(slot));
+    if(this._isLocal()){
+      var x=new XMLHttpRequest();x.open('DELETE',location.origin+'/api/save?slot='+encodeURIComponent(slot),false);x.send();
+    }
+    return true}
 
   abort(){if(this._abortController){this._abortController.abort();this._abortController=null;this.release()}}
 
@@ -200,6 +219,15 @@ class GameEngine {
 
   _fetchHeaders(){
     return{Authorization:'Bearer '+this.apiCfg.apiKey,'Content-Type':'application/json'}
+  }
+  _isLocal(){return typeof location!=='undefined'&&location.hostname==='127.0.0.1'&&location.port==='8848'}
+  _syncGet(url){
+    var x=new XMLHttpRequest();x.open('GET',url,false);x.send();
+    return x.status===200?JSON.parse(x.responseText):null
+  }
+  _syncPost(url,body){
+    var x=new XMLHttpRequest();x.open('POST',url,false);x.setRequestHeader('Content-Type','application/json');x.send(body);
+    return x.status===200
   }
   _apiUrl(){
     const u=this.apiCfg.apiBase+'/chat/completions';
