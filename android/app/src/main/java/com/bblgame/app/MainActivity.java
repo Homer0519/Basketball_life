@@ -1,11 +1,14 @@
 package com.bblgame.app;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -14,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private WebView wv;
+    private ValueCallback<Uri[]> mFilePathCallback;
+    private static final int FILECHOOSER_RESULT = 5173;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -57,9 +62,34 @@ public class MainActivity extends AppCompatActivity {
             public void onHideCustomView() {
                 setContentView(wv);
             }
+            @Override
+            public boolean onShowFileChooser(WebView wv, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                if (mFilePathCallback != null) mFilePathCallback.onReceiveValue(null);
+                mFilePathCallback = filePathCallback;
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                startActivityForResult(Intent.createChooser(intent, "选择文件"), FILECHOOSER_RESULT);
+                return true;
+            }
         });
 
         wv.loadUrl("file:///android_asset/www/index.html");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == FILECHOOSER_RESULT) {
+            if (mFilePathCallback != null) {
+                Uri[] results = null;
+                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                    results = new Uri[]{data.getData()};
+                }
+                mFilePathCallback.onReceiveValue(results);
+                mFilePathCallback = null;
+            }
+        }
     }
 
     @Override
