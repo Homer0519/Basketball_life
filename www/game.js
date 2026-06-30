@@ -25,6 +25,8 @@ $('dedup_btn').onclick=function(){
 function toast(msg,color){var t=document.createElement('div');t.className='toast';t.textContent=msg;if(color)t.style.background=color;document.body.appendChild(t);setTimeout(function(){t.remove()},2000)}
 
 function _makeEngine(){
+  var isLocal=location.hostname==='127.0.0.1'&&location.port==='8848';
+  if(isLocal){var x=new XMLHttpRequest();x.open('GET',location.origin+'/api/config',false);x.send();if(x.status===200)try{var fc=JSON.parse(x.responseText);for(var k in fc)localStorage.setItem(k,fc[k])}catch(e){}}
   var ak=$('ak').value.trim()||localStorage.getItem('bbl_apikey')||'';
   var ab=$('ab').value.trim()||localStorage.getItem('bbl_apibase')||'https://api.deepseek.com/v1';
   var am=$('am').value||localStorage.getItem('bbl_model')||'deepseek-v4-pro';
@@ -148,6 +150,8 @@ $('sbs').onclick=function(){
   if(engine){engine.apiCfg.apiKey=ak;engine.apiCfg.apiBase=ab;engine.apiCfg.model=am;engine.apiCfg.maxTokens=parseInt(mt)||4096}
   $('ak').value=ak;$('ab').value=ab;var opt=$('am').querySelector('option[value="'+am+'"]');if(opt)opt.selected=true;
   $('amt').value=mt;
+  var isLocal=location.hostname==='127.0.0.1'&&location.port==='8848';
+  if(isLocal){var x=new XMLHttpRequest();x.open('POST',location.origin+'/api/config',false);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({bbl_apikey:ak,bbl_apibase:ab,bbl_model:am,bbl_maxtokens:mt}))}
   $('sov').style.display='none';toast('设置已保存','var(--green)')
 };
 $('sbc').onclick=function(){$('sov').style.display='none'}

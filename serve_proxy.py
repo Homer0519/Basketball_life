@@ -3,7 +3,7 @@ import http.server,urllib.request,urllib.parse,os,json,glob
 PORT=8848
 DIR=os.path.dirname(os.path.abspath(__file__))
 WWW=os.path.join(DIR,'www')
-DATA=os.path.join(DIR,'data')
+CONFIG=os.path.join(DATA,'config.json')
 os.makedirs(DATA,exist_ok=True)
 
 def _json_resp(h,data,code=200):
@@ -20,6 +20,11 @@ class H(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         p=urllib.parse.urlparse(self.path)
         qs=urllib.parse.parse_qs(p.query)
+        if self.path.startswith('/api/config'):
+            if os.path.exists(CONFIG):
+                with open(CONFIG,'r',encoding='utf-8') as fh:_json_resp(self,json.load(fh))
+            else:_json_resp(self,{})
+            return
         if self.path.startswith('/api/saves'):
             fs=[];g=os.path.join(DATA,'save_*.json')
             for f in glob.glob(g):
@@ -72,6 +77,9 @@ class H(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         p=urllib.parse.urlparse(self.path)
         qs=urllib.parse.parse_qs(p.query)
+        if self.path.startswith('/api/config'):
+            with open(CONFIG,'wb') as fh:fh.write(self.get_body())
+            _json_resp(self,{'ok':True});return
         if self.path.startswith('/api/save'):
             s=qs.get('slot',['auto'])[0];body=self.get_body()
             f=os.path.join(DATA,f'save_{s}.json')
