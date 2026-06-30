@@ -201,11 +201,21 @@ class GameEngine {
   _fetchHeaders(){
     return{Authorization:'Bearer '+this.apiCfg.apiKey,'Content-Type':'application/json'}
   }
+  _apiUrl(){
+    const u=this.apiCfg.apiBase+'/chat/completions';
+    if(typeof location!=='undefined'&&location.hostname==='127.0.0.1')return location.origin+'/api/proxy?target='+encodeURIComponent(u);
+    return u
+  }
+  _apiUrlStream(){
+    const u=this.apiCfg.apiBase+'/chat/completions';
+    if(typeof location!=='undefined'&&location.hostname==='127.0.0.1')return location.origin+'/api/proxy_stream?target='+encodeURIComponent(u);
+    return u
+  }
 
   async _llCall(sp,up){
     const h=this._fetchHeaders();
     const b={model:this.apiCfg.model,max_tokens:this.apiCfg.maxTokens,temperature:0.85,messages:[{role:'system',content:sp},{role:'user',content:up}]};
-    const r=await fetch(this.apiCfg.apiBase+'/chat/completions',{method:'POST',headers:h,body:JSON.stringify(b)});
+    const r=await fetch(this._apiUrl(),{method:'POST',headers:h,body:JSON.stringify(b)});
     const d=await r.json();
     if(d.choices&&d.choices.length>0){const msg=d.choices[0].message||{};return msg.content||msg.reasoning_content||''}
     throw new Error('API: '+JSON.stringify(d))
@@ -214,7 +224,7 @@ class GameEngine {
   async *_lsStream(sp,up,signal){
     const h=this._fetchHeaders();
     const b={model:this.apiCfg.model,max_tokens:this.apiCfg.maxTokens,temperature:0.85,stream:true,messages:[{role:'system',content:sp},{role:'user',content:up}]};
-    const r=await fetch(this.apiCfg.apiBase+'/chat/completions',{method:'POST',headers:h,body:JSON.stringify(b),signal});
+    const r=await fetch(this._apiUrlStream(),{method:'POST',headers:h,body:JSON.stringify(b),signal});
     const reader=r.body.getReader();const decoder=new TextDecoder();let buf='';
     while(true){
       const{done,value}=await reader.read();if(done)break;

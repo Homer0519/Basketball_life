@@ -27,12 +27,27 @@ function toast(msg,color){var t=document.createElement('div');t.className='toast
 function _makeEngine(){
   var ak=$('ak').value.trim()||localStorage.getItem('bbl_apikey')||'';
   var ab=$('ab').value.trim()||localStorage.getItem('bbl_apibase')||'https://api.deepseek.com/v1';
-  var am=$('am').value.trim()||localStorage.getItem('bbl_model')||'deepseek-v4-pro';
+  var am=$('am').value||localStorage.getItem('bbl_model')||'deepseek-v4-pro';
   var mt=parseInt($('amt').value)||parseInt(localStorage.getItem('bbl_maxtokens'))||4096;
   localStorage.setItem('bbl_apikey',ak);localStorage.setItem('bbl_apibase',ab);localStorage.setItem('bbl_model',am);
   localStorage.setItem('bbl_maxtokens',mt);
   return new GameEngine({apiKey:ak,apiBase:ab,model:am,maxTokens:mt});
 }
+
+function _fetchModels(selectId,btnId){
+  var sel=$(selectId),btn=$(btnId);btn.disabled=true;btn.textContent='获取中...';
+  var ak=selectId==='am'?$('ak').value.trim()||localStorage.getItem('bbl_apikey'):$('sak').value.trim()||localStorage.getItem('bbl_apikey');
+  var ab=selectId==='am'?$('ab').value.trim()||localStorage.getItem('bbl_apibase'):$('sab').value.trim()||localStorage.getItem('bbl_apibase');
+  var am=localStorage.getItem('bbl_model')||'deepseek-v4-pro';
+  if(!ak){toast('先填API Key','var(--red)');btn.disabled=false;btn.textContent='获取';return}
+  fetch((location.hostname==='127.0.0.1'?location.origin+'/api/proxy?target='+encodeURIComponent(ab+'/models'):ab+'/models'),{headers:{'Authorization':'Bearer '+ak}}).then(function(r){return r.json()}).then(function(d){
+    sel.innerHTML='';var models=(d.data||[]).sort(function(a,b){return a.id>b.id?1:-1});
+    if(!models.length){var o=document.createElement('option');o.value=am;o.text=am;o.selected=true;sel.appendChild(o);toast('无模型列表','var(--red)')}
+    else{for(var i=0;i<models.length;i++){var o=document.createElement('option');o.value=models[i].id;o.text=models[i].id;if(models[i].id===am)o.selected=true;sel.appendChild(o)}toast(models.length+' 个模型','var(--green)')}
+  }).catch(function(e){toast('获取失败','var(--red)')}).finally(function(){btn.disabled=false;btn.textContent='获取'})
+}
+$('fmb').onclick=function(){_fetchModels('am','fmb')};
+$('sfmb').onclick=function(){_fetchModels('sam','sfmb')};
 
 $('sbn').onclick=async function(){
   var b=$('sbn');b.disabled=true;b.textContent='开局中...';
@@ -51,7 +66,7 @@ $('sbn').onclick=async function(){
 (function(){
   var sak=localStorage.getItem('bbl_apikey');if(sak){$('ak').value=sak}
   var sab=localStorage.getItem('bbl_apibase');if(sab)$('ab').value=sab;
-  var sam=localStorage.getItem('bbl_model');if(sam)$('am').value=sam;
+  var sam=localStorage.getItem('bbl_model')||'deepseek-v4-pro';var o=$('am').querySelector('option[value="'+sam+'"]');if(!o){o=document.createElement('option');o.value=sam;o.text=sam;$('am').appendChild(o)}o.selected=true;
   var smt=localStorage.getItem('bbl_maxtokens');if(smt)$('amt').value=smt;
   showSaves();
 })();
@@ -121,15 +136,16 @@ $('newb').onclick=function(){if(confirm('开始新游戏?')){engine.endSession()
 $('stb_set').onclick=function(){
   $('sak').value=localStorage.getItem('bbl_apikey')||'';
   $('sab').value=localStorage.getItem('bbl_apibase')||'https://api.deepseek.com/v1';
-  $('sam').value=localStorage.getItem('bbl_model')||'deepseek-v4-pro';
+  var sm=localStorage.getItem('bbl_model');if(sm){var opt=$('sam').querySelector('option[value="'+sm+'"]');if(opt)opt.selected=true}
   $('smt').value=localStorage.getItem('bbl_maxtokens')||'4096';
   $('sov').style.display='flex'
 };
 $('sbs').onclick=function(){
-  var ak=$('sak').value.trim(),ab=$('sab').value.trim(),am=$('sam').value.trim(),mt=$('smt').value.trim();
+  var ak=$('sak').value.trim(),ab=$('sab').value.trim(),am=$('sam').value,mt=$('smt').value.trim();
   localStorage.setItem('bbl_apikey',ak);localStorage.setItem('bbl_apibase',ab);localStorage.setItem('bbl_model',am);localStorage.setItem('bbl_maxtokens',mt);
   if(engine){engine.apiCfg.apiKey=ak;engine.apiCfg.apiBase=ab;engine.apiCfg.model=am;engine.apiCfg.maxTokens=parseInt(mt)||4096}
-  $('ak').value=ak;$('ab').value=ab;$('am').value=am;$('amt').value=mt;
+  $('ak').value=ak;$('ab').value=ab;var opt=$('am').querySelector('option[value="'+am+'"]');if(opt)opt.selected=true;
+  $('amt').value=mt;
   $('sov').style.display='none';toast('设置已保存','var(--green)')
 };
 $('sbc').onclick=function(){$('sov').style.display='none'}
