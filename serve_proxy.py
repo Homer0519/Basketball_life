@@ -3,6 +3,7 @@ import http.server,urllib.request,urllib.parse,os,json,glob
 PORT=8848
 DIR=os.path.dirname(os.path.abspath(__file__))
 WWW=os.path.join(DIR,'www')
+DATA=os.path.join(DIR,'data')
 CONFIG=os.path.join(DATA,'config.json')
 os.makedirs(DATA,exist_ok=True)
 
