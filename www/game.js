@@ -123,6 +123,8 @@ $('simb').onclick=function(){
     reader.onload=function(){
       try{var data=JSON.parse(reader.result);
         var count=0;for(var k in data){localStorage.setItem(k,data[k]);count++}
+        var isLocal=location.hostname==='127.0.0.1'&&location.port==='8848';
+        if(isLocal){for(var k in data){if(k.startsWith('bbl_save_')){var slot=k.replace('bbl_save_','');var x=new XMLHttpRequest();x.open('POST',location.origin+'/api/save?slot='+encodeURIComponent(slot),false);x.setRequestHeader('Content-Type','application/json');x.send(data[k])}}}
         toast('导入 '+count+' 条，刷新后生效','var(--green)')
       }catch(e){toast('导入失败: '+e.message,'var(--red)')}
     };
