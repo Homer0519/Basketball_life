@@ -94,7 +94,9 @@ $('exb').onclick=function(){
 window._doExport=function(slot){
   var key='bbl_save_'+slot;var data={};data[key]=localStorage.getItem(key);if(slot==='auto'){data['bbl_apikey']=localStorage.getItem('bbl_apikey')||''}
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bbl_'+slot+'_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  var reader=new FileReader();reader.onload=function(){
+    var a=document.createElement('a');a.href=reader.result;a.download='bbl_'+slot+'_'+new Date().toISOString().slice(0,10)+'.json';a.click()
+  };reader.readAsDataURL(blob);
   $('exp_ov').style.display='none';toast('已导出: '+slot,'var(--green)')
 }
 

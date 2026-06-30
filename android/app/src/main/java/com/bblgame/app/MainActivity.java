@@ -5,15 +5,24 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Base64;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private WebView wv;
@@ -71,6 +80,27 @@ public class MainActivity extends AppCompatActivity {
                 intent.setType("*/*");
                 startActivityForResult(Intent.createChooser(intent, "选择文件"), FILECHOOSER_RESULT);
                 return true;
+            }
+        });
+
+        wv.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+                try {
+                    String prefix = "data:" + mimeType + ";base64,";
+                    if (url.startsWith(prefix)) {
+                        byte[] decoded = Base64.decode(url.substring(prefix.length()), Base64.DEFAULT);
+                        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                        String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+                        File file = new File(dir, "BBL_export_" + ts + ".json");
+                        FileOutputStream fos = new FileOutputStream(file);
+                        fos.write(decoded);
+                        fos.close();
+                        Toast.makeText(MainActivity.this, "已导出: " + file.getName(), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "导出失败", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
